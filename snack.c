@@ -70,13 +70,33 @@ void put_snake_into_block(Block_type(*fp)[LENGTH],Location_type *lfp)
 		(*(fp + ((lfp + i)->y)))[(lfp + i)->x].status = true;
 	}
 }
-int shift_snake(Block_type(*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
+void generate_ball(Location_type *ball_location)
+{
+	ball_location->x = rand()%LENGTH;
+	ball_location->y = rand()%WIDE;
+}
+int shift_snake(Block_type (*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
 {
 	Location_type tmp_head;
 	Location_type tmp_tail;
+	static Location_type ball_location;
 	int i;
-	_Bool get_ball = false;
-	
+	static _Bool get_ball = false;
+	static _Bool set_ball = false;
+
+	if(!set_ball)
+	{
+		do
+		{
+			generate_ball(&ball_location);
+		}	
+		while((*(fp + (ball_location.y)))[ball_location.x].content != empty);
+		(*(fp + (ball_location.y)))[ball_location.x].content = ball;
+		(*(fp + (ball_location.y)))[ball_location.x].status = false;
+		set_ball = true;
+		get_ball = false;
+	}
+
 	tmp_tail = *(lfp + snake_length - 1);
 	tmp_head = *lfp;
 
@@ -107,6 +127,12 @@ int shift_snake(Block_type(*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
 	if((*(fp + (lfp->y)))[lfp->x].status)
 	{
 		return 1;
+	}
+	if(lfp->x == ball_location.x && lfp->y == ball_location.y)
+	{
+		get_ball = true;
+		set_ball = false;
+		snake_length++;
 	}
 	if(!get_ball)
 	{
@@ -214,7 +240,7 @@ int main(int argc,char **argv)
 		print_block(pblock);
 		
 	}
-	printf("you are dead!point is %d\n",snake_length);
+	printf("you are dead!point is %d\n",snake_length - SNAKE_INIT_LENGTH);
 	free(snake);
 	return	0;
 }
