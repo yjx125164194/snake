@@ -1,6 +1,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<malloc.h>
+#include<stdlib.h>
 #include"game.h"
 
 #define WIDE 	20
@@ -8,6 +9,14 @@
 
 #define SPEED 			500*1000
 #define SNAKE_INIT_LENGTH	4
+
+enum Direction
+{
+	up,
+	down,
+	right,
+	left
+};
 
 int snake_length = SNAKE_INIT_LENGTH;
 
@@ -48,21 +57,68 @@ void put_snake_into_block(Block_type(*fp)[LENGTH],Location_type *lfp)
 	{	
 		if(!i)
 		{
-			(*(fp+((lfp+i)->y)))[(lfp+i)->x].content = snake_head;
+			(*(fp + ((lfp + i)->y)))[(lfp + i)->x].content = snake_head;
 		}
 		else if(i == snake_length - 1)
 		{
-			(*(fp+((lfp+i)->y)))[(lfp+i)->x].content = snake_tail;
+			(*(fp+((lfp + i)->y)))[(lfp + i)->x].content = snake_tail;
 		}
 		else
 		{
-			(*(fp+((lfp+i)->y)))[(lfp+i)->x].content = snake_body;
+			(*(fp+((lfp + i)->y)))[(lfp + i)->x].content = snake_body;
 		}
+		(*(fp + ((lfp + i)->y)))[(lfp + i)->x].status = true;
 	}
+}
+int shift_snake(Block_type(*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
+{
+	Location_type tmp_head;
+	Location_type tmp_tail;
+	int i;
+	_Bool get_ball = false;
+	
+	tmp_tail = *(lfp + snake_length - 1);
+	tmp_head = *lfp;
+
+	for(i = snake_length - 2;i >= 0;i--)
+	{
+		*(lfp + i + 1) = *(lfp + i);
+	}	
+	if(Dir == up)
+	{
+		lfp->x = tmp_head.x;
+		lfp->y = tmp_head.y - 1;
+	}	
+	else if(Dir == down)
+	{
+		lfp->x = tmp_head.x;
+		lfp->y = tmp_head.y + 1;
+	}	
+	else if(Dir == left)
+	{
+		lfp->x = tmp_head.x - 1;
+		lfp->y = tmp_head.y;
+	}	
+	else if(Dir == right)
+	{
+		lfp->x = tmp_head.x + 1;
+		lfp->y = tmp_head.y;
+	}	
+	if((*(fp + (lfp->y)))[lfp->x].status)
+	{
+		return 1;
+	}
+	if(!get_ball)
+	{
+		(*(fp + (tmp_tail.y)))[tmp_tail.x].content = empty;
+		(*(fp + (tmp_tail.y)))[tmp_tail.x].status = false;
+	}
+	
+	put_snake_into_block(fp,lfp);
+	return 0;
 }
 void print_block(Block_type (*fp)[LENGTH])
 {
-	usleep(SPEED);
 	system("clear");
 
 	int i,j;
@@ -95,6 +151,7 @@ void print_block(Block_type (*fp)[LENGTH])
 		}
 		printf("\n");
 	}
+	usleep(SPEED);
 }
 
 int main(int argc,char **argv)
@@ -102,7 +159,8 @@ int main(int argc,char **argv)
 	Block_type block[WIDE][LENGTH];
 	Block_type (*pblock)[LENGTH];
 	Location_type *snake;
-	
+	enum Direction direction = down;	
+
 	snake = (Location_type *)malloc(sizeof(Location_type) * (WIDE-1) * (LENGTH-1));
 	pblock = &block[0];
 
@@ -114,9 +172,49 @@ int main(int argc,char **argv)
 
 	while(1)
 	{
-		print_block(block);
+    		if(kbhit())
+    		{
+      			switch(sh_getch())
+      			{
+        			case '8':
+          				if(direction == right || direction == left)
+					{
+						direction = up;
+					}
+          				break;
+       				case '4':
+          				if(direction == up || direction == down)
+          				{
+						direction = left;
+					}
+          				break;
+        			case '6':
+          				if(direction == up || direction == down)
+          				{
+						direction = right;
+					}
+          				break;
+        			case '5':
+          				if(direction == right || direction == left)
+          				{
+						direction = down;
+					}
+          				break;
+        			case 'q':
+					free(snake);
+          				exit(0);
+       				default:break;
+     			 }			
+   		}			
+    		setbuf(stdin,NULL);
+		if(shift_snake(pblock,snake,direction))
+		{
+			break;
+		}
+		print_block(pblock);
+		
 	}
-	
+	printf("you are dead!point is %d\n",snake_length);
 	free(snake);
 	return	0;
 }
