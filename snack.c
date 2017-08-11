@@ -6,7 +6,10 @@
 #define WIDE 	20
 #define LENGTH	30
 
-#define SPEED 	500*1000
+#define SPEED 			500*1000
+#define SNAKE_INIT_LENGTH	4
+
+int snake_length = SNAKE_INIT_LENGTH;
 
 void init_block(Block_type (*fp)[LENGTH])
 {
@@ -29,7 +32,34 @@ void init_block(Block_type (*fp)[LENGTH])
 		}
 	}
 }
-
+void init_snake(Location_type *fp)
+{
+	int i;
+	for(i = 0;i < SNAKE_INIT_LENGTH;i++)
+	{
+		(fp+i)->x = (LENGTH/2);
+		(fp+i)->y = (WIDE/2) - i;
+	}
+}
+void put_snake_into_block(Block_type(*fp)[LENGTH],Location_type *lfp)
+{
+	int i;
+	for(i = 0;i < snake_length;i++)
+	{	
+		if(!i)
+		{
+			(*(fp+((lfp+i)->y)))[(lfp+i)->x].content = snake_head;
+		}
+		else if(i == snake_length - 1)
+		{
+			(*(fp+((lfp+i)->y)))[(lfp+i)->x].content = snake_tail;
+		}
+		else
+		{
+			(*(fp+((lfp+i)->y)))[(lfp+i)->x].content = snake_body;
+		}
+	}
+}
 void print_block(Block_type (*fp)[LENGTH])
 {
 	usleep(SPEED);
@@ -48,8 +78,14 @@ void print_block(Block_type (*fp)[LENGTH])
 				case wall:
 					printf("@");
 					break;
-				case snake:
+				case snake_head:
+					printf("Q");
+					break;
+				case snake_body:
 					printf("X");
+					break;
+				case snake_tail:
+					printf("x");
 					break;
 				case ball:
 					printf("O");
@@ -66,15 +102,21 @@ int main(int argc,char **argv)
 	Block_type block[WIDE][LENGTH];
 	Block_type (*pblock)[LENGTH];
 	Location_type *snake;
-
+	
+	snake = (Location_type *)malloc(sizeof(Location_type) * (WIDE-1) * (LENGTH-1));
 	pblock = &block[0];
 
+	srand((unsigned int)time(0));
+
 	init_block(pblock);
-	
+	init_snake(snake);
+	put_snake_into_block(pblock,snake);
+
 	while(1)
 	{
 		print_block(block);
 	}
-
+	
+	free(snake);
 	return	0;
 }

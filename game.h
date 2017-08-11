@@ -4,7 +4,9 @@ enum Content
 {
 	empty,
 	wall,
-	snake,
+	snake_body,
+	snake_head,
+	snake_tail,
 	bird,
 	ball,
 	pillar
