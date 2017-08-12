@@ -187,7 +187,7 @@ int main(int argc,char **argv)
 	Block_type (*pblock)[LENGTH];
 	Location_type *snake;
 	enum Direction direction = down;	
-
+	
 	snake = (Location_type *)malloc(sizeof(Location_type) * (WIDE-1) * (LENGTH-1));
 	pblock = &block[0];
 

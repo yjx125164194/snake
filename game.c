@@ -22,7 +22,6 @@ int sh_getch(void)
     return EOF;
 
   cr = getchar();
-  
   if(tcsetattr(0,TCSANOW,&ots) < 0)
     return EOF; 
 
