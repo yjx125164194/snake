@@ -129,6 +129,8 @@ int shift_snake(Block_type (*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
 		get_ball = true;
 		set_ball = false;
 		snake_length++;
+		(lfp + snake_length - 1)->x = tmp_tail.x;
+		(lfp + snake_length - 1)->y = tmp_tail.y;
 	}
 	if(!get_ball)
 	{
