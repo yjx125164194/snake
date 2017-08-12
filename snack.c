@@ -124,10 +124,6 @@ int shift_snake(Block_type (*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
 		lfp->x = tmp_head.x + 1;
 		lfp->y = tmp_head.y;
 	}	
-	if((*(fp + (lfp->y)))[lfp->x].status)
-	{
-		return 1;
-	}
 	if(lfp->x == ball_location.x && lfp->y == ball_location.y)
 	{
 		get_ball = true;
@@ -139,7 +135,10 @@ int shift_snake(Block_type (*fp)[LENGTH],Location_type *lfp,enum Direction Dir)
 		(*(fp + (tmp_tail.y)))[tmp_tail.x].content = empty;
 		(*(fp + (tmp_tail.y)))[tmp_tail.x].status = false;
 	}
-	
+	if((*(fp + (lfp->y)))[lfp->x].status)
+	{
+		return 1;
+	}
 	put_snake_into_block(fp,lfp);
 	return 0;
 }
